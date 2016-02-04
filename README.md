@@ -24,7 +24,7 @@ val atoms: TraversableOnce[PdbAtom] = tin.loadAndWait("1hiv") // max wait defaul
 
 Example of using _caffeinated_ and asynchronous lookups:
 ```scala
-val tin = new CaffeinatedAtomTin(_.expireAfterAccess(10L, TimeUnit.SECONDS).maximumSize(100)) // modifying defaults
+val tin = new CaffeinatedAtomTin(_.expireAfterAccess(10L, TimeUnit.SECONDS).maximumSize(100)) // alter defaults
 tin.load("1hiv") map {
 	atoms => atoms filter (a => a.residueName == Right(AminoAcid.Arginine)) map (_.coordinates)
 } onSuccess {
