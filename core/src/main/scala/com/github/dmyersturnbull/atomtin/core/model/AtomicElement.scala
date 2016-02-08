@@ -32,6 +32,7 @@ object AtomicElement {
 	val Carbon = value("carbon", "C", 6)
 	val Nitrogen = value("nitrogen", "N", 7)
 	val Oxygen = value("oxygen", "O", 8)
+	val Fluorine = value("fluorine", "F", 9)
 	val Sodium = value("sodium", "Na", 11)
 	val Magnesium = value("magnesium", "Mg", 12)
 	val Phosphorus = value("phosphorus", "P", 15)
@@ -39,10 +40,18 @@ object AtomicElement {
 	val Chlorine = value("chlorine", "Cl", 17)
 	val Potassium = value("potassium", "K", 19)
 	val Calcium = value("calcium", "Ca", 20)
+	val Manganese = value("manganese", "Mn", 25)
 	val Iron = value("iron", "Fe", 26)
+	val Cobalt = value("cobolt", "Co", 27)
+	val Copper = value("copper", "Cu", 29)
 	val Zinc = value("zinc", "Zn", 30)
+	val Selenium = value("selenium", "Se", 34)
+	val Bromine = value("bromine", "Br", 35)
+	val Iodine = value("iodine", "I", 53)
+	val Molybdenum = value("molybdenum", "Mo", 42)
+	val Mercury = value("mercury", "Hg", 80)
 
-	def byName(name: String) = names get name
+	def byName(name: String) = names get name.toLowerCase
 	def bySymbol(symbol: String) = symbols get symbol
 	def byAtomicNumber(number: Short) = atomicNumbers get number
 

@@ -25,4 +25,25 @@ case class PdbCoordinates(x: Float, y: Float, z: Float) {
 
 	override def toString = "(" + x + "," + y + "," + z + ")"
 
+	/**
+	  * Element-wise addition.
+	  */
+	def +(that: PdbCoordinates) = new PdbCoordinates(x + that.x, y + that.y, z + that.z)
+
+	/**
+	  * Element-wise subtraction.
+	  */
+	def -(that: PdbCoordinates) = new PdbCoordinates(x - that.x, y - that.y, z - that.z)
+
+	def *(scalar: Float) = new PdbCoordinates(scalar * x, scalar * y, scalar * z)
+
+	/**
+	  * Element-wise multiplication.
+	  */
+	def :*(that: PdbCoordinates) = new PdbCoordinates(that.x * x, that.y * y, that.z * z)
+
+	/**
+	  * Dot product.
+	  */
+	def dot(that: PdbCoordinates) = that.x * x + that.y * y + that.z * z
 }

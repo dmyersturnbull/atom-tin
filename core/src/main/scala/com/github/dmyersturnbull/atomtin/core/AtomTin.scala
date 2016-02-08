@@ -20,6 +20,8 @@ import java.io._
 import java.net.URL
 import java.util.zip.GZIPInputStream
 
+import org.slf4j.LoggerFactory
+
 import scala.concurrent.{Await, ExecutionContext, Future}
 import scala.concurrent.duration.Duration
 
@@ -30,9 +32,12 @@ import scalacache._
 /**
   * @author Douglas Myers-Turnbull
   */
-class AtomTin(cache: ScalaCache)(implicit ec: ExecutionContext) extends Object with Closeable {
+class AtomTin(cache: ScalaCache, source: String => TraversableOnce[PdbAtom] = AtomTin.download)
+			 (implicit ec: ExecutionContext) extends Object with Closeable {
 
 	implicit val scalaCache = cache
+
+	protected val logger = LoggerFactory.getLogger(classOf[AtomTin])
 
 	def loadAndWait(pdbId: String, duration: Duration = Duration.Inf): TraversableOnce[PdbAtom] =  {
 		val r = load(pdbId)
@@ -45,18 +50,12 @@ class AtomTin(cache: ScalaCache)(implicit ec: ExecutionContext) extends Object w
 			get(pdbId).asInstanceOf[Future[Option[TraversableOnce[PdbAtom]]]] map {
 			case Some(atoms) => atoms
 			case None =>
-				val r = download(pdbId)
+				logger.debug("Retrieving atoms for {} from source...", pdbId)
+				val r = source(pdbId)
+				logger.debug("Done. Adding atoms for {} to cache.", pdbId)
 				put(pdbId)(r) // ditto
 				r
 		}
-	}
-
-	private def download(pdbId: String): TraversableOnce[PdbAtom] = {
-		val is = new GZIPInputStream(new URL("http://www.rcsb.org/pdb/files/" + pdbId.toUpperCase + ".pdb.gz").openStream())
-		(scala.io.Source.fromInputStream(is)
-				withClose (() => is.close()) getLines()
-				filter (s => s.startsWith("ATOM") || s.startsWith("HETATM"))
-				map new PdbParser)
 	}
 
 	override def close() {
@@ -65,9 +64,23 @@ class AtomTin(cache: ScalaCache)(implicit ec: ExecutionContext) extends Object w
 
 	def delete(pdbId: String) {
 		remove(pdbId)
+		logger.debug("Deleted {} from cache", pdbId)
 	}
 
 	def deleteAll() {
 		removeAll()
+		logger.debug("Deleted all entries in cache")
 	}
+}
+
+object AtomTin {
+
+	def download(pdbId: String): TraversableOnce[PdbAtom] = {
+		val is = new GZIPInputStream(new URL("http://www.rcsb.org/pdb/files/" + pdbId.toUpperCase + ".pdb.gz").openStream())
+		(scala.io.Source.fromInputStream(is)
+				withClose (() => is.close()) getLines()
+				filter (s => s.startsWith("ATOM") || s.startsWith("HETATM"))
+				map new PdbParser)
+	}
+
 }

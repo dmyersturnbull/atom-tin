@@ -34,7 +34,9 @@ import ExecutionContext.Implicits.global
 /**
   * Created by student on 1/31/16.
   */
-class PickledAtomTin(storeDir: File = new File(System.getProperty("user.home"), "atom-tin-cache"), clearOnExit: Boolean = false)
+class PickledAtomTin(storeDir: File = new File(System.getProperty("user.home"), "atom-tin-cache"),
+					 clearOnExit: Boolean = false,
+					 source: String => TraversableOnce[PdbAtom] = AtomTin.download)
 		extends AtomTin( {
 
 	new ScalaCache(
@@ -90,4 +92,4 @@ class PickledAtomTin(storeDir: File = new File(System.getProperty("user.home"), 
 		}
 	})
 
-})
+}, source = source)

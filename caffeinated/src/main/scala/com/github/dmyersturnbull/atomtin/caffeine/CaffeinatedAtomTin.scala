@@ -17,6 +17,7 @@
 package com.github.dmyersturnbull.atomtin.caffeine
 
 import com.github.dmyersturnbull.atomtin.core.AtomTin
+import com.github.dmyersturnbull.atomtin.core.model.PdbAtom
 
 import scala.concurrent.ExecutionContext
 import scalacache.caffeine.CaffeineCache
@@ -29,9 +30,10 @@ import com.github.benmanes.caffeine.cache.{Cache, Caffeine}
   *
   * @author Douglas Myers-Turnbull
   */
-class CaffeinatedAtomTin(modifier: Caffeine[String, Object] => Caffeine[String, Object] = Predef.identity)
+class CaffeinatedAtomTin(modifier: Caffeine[String, Object] => Caffeine[String, Object] = Predef.identity,
+						 source: String => TraversableOnce[PdbAtom] = AtomTin.download)
 		extends AtomTin({
 			val coffee = Caffeine.newBuilder().asInstanceOf[Caffeine[String, Object]] // could put defaults here
 			val cache: Cache[String, Object] = modifier(coffee).build()
 			ScalaCache(CaffeineCache(cache))
-		})(ExecutionContext.global)
+		}, source = source)(ExecutionContext.global)

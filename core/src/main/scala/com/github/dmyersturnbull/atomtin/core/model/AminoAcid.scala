@@ -47,6 +47,7 @@ object AminoAcid {
 	val Valine = value("valine", "Val", 'V')
 	val Proline = value("proline", "Pro", 'P')
 	val Glycine = value("glycine", "Gly", 'G')
+	val Cysteine = value("cysteine", "Cys", 'C')
 	val Selenocysteine = value("selenocysteine", "Sec", 'U')
 	val Pyrrolysine = value("pyrrolysine", "Pyl", 'O')
 

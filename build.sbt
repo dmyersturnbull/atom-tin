@@ -18,7 +18,7 @@ name := "atom-tin"
 
 lazy val commonSettings = Seq(
 	organization := "com.github.dmyersturnbull",
-	version := "0.1",
+	version := "0.1.1",
 	scalaVersion := "2.11.7",
 	javacOptions ++= Seq("-source", "1.8", "-target", "1.8", "-Xlint:all"),
 	scalacOptions ++= Seq("-unchecked", "-deprecation"),
@@ -71,4 +71,4 @@ lazy val pickled = project.
 
 lazy val root = (project in file(".")).
 		settings(commonSettings: _*).
-		aggregate(core, caffeinated)
+		aggregate(core, caffeinated, pickled)
