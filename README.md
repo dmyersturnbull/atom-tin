@@ -13,8 +13,6 @@ Contains three SBT subprojects:
 
 ### Examples
 
-Here's an example of using _caffeinated_:
-
 Simple example for using _pickled_ with synchronized lookups:
 
 ```scala
