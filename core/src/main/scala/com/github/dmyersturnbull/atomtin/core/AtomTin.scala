@@ -22,6 +22,7 @@ import java.util.zip.GZIPInputStream
 
 import org.slf4j.LoggerFactory
 
+import scala.io.Source
 import scala.concurrent.{Await, ExecutionContext, Future}
 import scala.concurrent.duration.Duration
 
@@ -32,7 +33,7 @@ import scalacache._
 /**
   * @author Douglas Myers-Turnbull
   */
-class AtomTin(cache: ScalaCache, source: String => TraversableOnce[PdbAtom] = AtomTin.download)
+class AtomTin(cache: ScalaCache, source: String => TraversableOnce[PdbAtom] = pdbId => AtomTin.download(pdbId, warn = true))
 			 (implicit ec: ExecutionContext) extends Object with Closeable {
 
 	implicit val scalaCache = cache
@@ -75,12 +76,15 @@ class AtomTin(cache: ScalaCache, source: String => TraversableOnce[PdbAtom] = At
 
 object AtomTin {
 
-	def download(pdbId: String): TraversableOnce[PdbAtom] = {
-		val is = new GZIPInputStream(new URL("http://www.rcsb.org/pdb/files/" + pdbId.toUpperCase + ".pdb.gz").openStream())
-		(scala.io.Source.fromInputStream(is)
-				withClose (() => is.close()) getLines()
-				filter (s => s.startsWith("ATOM") || s.startsWith("HETATM"))
-				map new PdbParser)
+	protected val logger = LoggerFactory.getLogger(classOf[AtomTin])
+
+	def urlFor(pdbId: String) = new URL("http://www.rcsb.org/pdb/files/" + pdbId.toUpperCase + ".pdb.gz")
+
+	def download(pdbId: String, warn: Boolean = true): TraversableOnce[PdbAtom] = {
+		val is = new GZIPInputStream(urlFor(pdbId).openStream())
+		new PdbParser(warn = warn).parse(
+			Source.fromInputStream(is) withClose (() => is.close()) getLines()
+		)
 	}
 
 }

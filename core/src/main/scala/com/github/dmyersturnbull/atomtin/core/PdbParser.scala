@@ -17,14 +17,34 @@
 package com.github.dmyersturnbull.atomtin.core
 
 import com.github.dmyersturnbull.atomtin.core.model._
+import org.slf4j.LoggerFactory
 
 /**
   * Transforms a String into a PdbAtom.
+  *
+  * @param warn: Logs warnings through SLF4J for problems listed in the PDB, namely OBSLETE and CAVEAT records
   * @author Douglas Myers-Turnbull
   */
-class PdbParser extends ((String) => PdbAtom) {
+class PdbParser(warn: Boolean = true) extends ((String) => PdbAtom) {
 
-	override def apply(line: String) = {
+	protected val logger = LoggerFactory.getLogger(classOf[PdbParser])
+
+	def parse(lines: TraversableOnce[String]): TraversableOnce[PdbAtom] = {
+		def warner(lines: TraversableOnce[String]): TraversableOnce[String] = {
+			var pdbId: Option[String] = None
+			lines map {line =>
+				line.substring(0, 6) match {
+					case "HEADER" => pdbId = Some(line.substring(62, 66).trim)
+					case "OBSLTE" => logger.warn("Entry identifying itself as {} is obsolete", pdbId.getOrElse("<unknown>"))
+					case "CAVEAT" => logger.warn("Entry identifying itself as {} has caveat: \"{}\"", pdbId.getOrElse("<unknown>"), line.substring(19, 79).trim)
+				}
+				line // use map rather than foreach so we can chain to parser with Iterator/TraversableOnce
+			}
+		}
+		(if (warn) warner(lines) else lines) filter (s => s.startsWith("ATOM") || s.startsWith("HETATM")) map this
+	}
+
+	override def apply(line: String): PdbAtom = {
 		if (line.length < 80 || line.substring(0, 6) != "ATOM  " && line.substring(0, 6) != "HETATM") {
 			throw new IllegalArgumentException("Invalid PDB ATOM or HETATM line \"" + line + "\"")
 		}
