@@ -21,7 +21,7 @@ package com.github.dmyersturnbull.atomtin.core.model
   * FLoats are used because the PDB format's fixed-width nature limits the precision.
   * @author Douglas Myers-Turnbull
   */
-case class PdbCoordinates(x: Float, y: Float, z: Float) {
+case class PdbCoordinates(x: BigDecimal, y: BigDecimal, z: BigDecimal) {
 
 	override def toString = "(" + x + "," + y + "," + z + ")"
 
@@ -35,7 +35,8 @@ case class PdbCoordinates(x: Float, y: Float, z: Float) {
 	  */
 	def -(that: PdbCoordinates) = new PdbCoordinates(x - that.x, y - that.y, z - that.z)
 
-	def *(scalar: Float) = new PdbCoordinates(scalar * x, scalar * y, scalar * z)
+	def *(scalar: Double): PdbCoordinates = *(BigDecimal.valueOf(scalar))
+	def *(scalar: BigDecimal): PdbCoordinates = new PdbCoordinates(scalar * x, scalar * y, scalar * z)
 
 	/**
 	  * Element-wise multiplication.

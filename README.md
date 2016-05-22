@@ -2,8 +2,6 @@
 
 Tiny Scala API to stream, parse, and cache atom coordinates from Protein Data Bank files. Only _ATOM_ and _HETATM_ records are parsed.
 
-This project is currently under active development and has limited test coverage and poor documentation.
-
 Uses [ScalaCache](https://github.com/cb372/scalacache) as a facade to support virtually any caching backend, such as [Ehcache](https://github.com/ehcache), [Redis](https://github.com/antirez/redis), [Caffeine](https://github.com/ben-manes/caffeine), or a custom backend.
 
 Contains three SBT subprojects:
@@ -32,6 +30,7 @@ tin.load("1hiv") map {
 
 ### Notes
 
+- The parser is covered by [ScalaCheck](https://www.scalacheck.org/) property tests. The caching currently lacks tests, but it seems to work.
 - `AtomTin` and its subclasses require an implicit `ExecutionContext`.
 - `PickledAtomTin` is currently limited to Gzipped JSON.
 

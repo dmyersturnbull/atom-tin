@@ -24,6 +24,8 @@ import scala.collection.mutable
   */
 object AminoAcid {
 
+	var allTypes: Seq[Type] = Seq[Type]()
+
 	private val names = new mutable.HashMap[String, Type]()
 	private val threeLetters = new mutable.HashMap[String, Type]()
 	private val oneLetters = new mutable.HashMap[Char, Type]()
@@ -62,6 +64,7 @@ object AminoAcid {
 		names.put(name.toUpperCase, aa)
 		oneLetters.put(oneLetterCode.toUpper, aa)
 		threeLetters.put(threeLetterCode.toUpperCase, aa)
+		allTypes :+= aa
 		aa
 	}
 

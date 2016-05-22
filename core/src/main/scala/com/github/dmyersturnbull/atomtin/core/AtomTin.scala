@@ -80,7 +80,8 @@ object AtomTin {
 
 	def urlFor(pdbId: String) = new URL("http://www.rcsb.org/pdb/files/" + pdbId.toUpperCase + ".pdb.gz")
 
-	def download(pdbId: String, warn: Boolean = true): TraversableOnce[PdbAtom] = {
+	def download(pdbId: String): TraversableOnce[PdbAtom] = download(pdbId, warn=true)
+	def download(pdbId: String, warn: Boolean): TraversableOnce[PdbAtom] = {
 		val is = new GZIPInputStream(urlFor(pdbId).openStream())
 		new PdbParser(warn = warn).parse(
 			Source.fromInputStream(is) withClose (() => is.close()) getLines()

@@ -27,10 +27,11 @@ lazy val commonSettings = Seq(
 	assemblyJarName in assembly := name.value + ".jar",
 	target in assembly := file("target"),
 	libraryDependencies ++= Seq(
-		"org.slf4j" % "slf4j-api" % "1.7.13",
+		"org.slf4j" % "slf4j-api" % "1.7.20",
 		"com.github.cb372" %% "scalacache-core" % "0.7.5",
-		"org.mockito" % "mockito-core" % "2.0.36-beta" % "test",
-		"org.scalatest" % "scalatest_2.10" % "2.0" % "test"
+		"org.mockito" % "mockito-core" % "2.0.44-beta" % "test",
+		"org.scalatest" % "scalatest_2.11" % "2.2.5" % "test",
+		"org.scalacheck" % "scalacheck_2.11" % "1.12.1"
 	),
 	pomExtra :=
 		<url>https://github.com/dmyersturnbull/atom-tin</url>
