@@ -31,6 +31,8 @@ import com.github.dmyersturnbull.atomtin.core.model.PdbAtom
 import scalacache._
 
 /**
+  * Go-to class for atom-tin.
+  * Provides functionality to download, parse, and cache PDB files from the RCSB PDB, and to delete PDB files from the cache.
   * @author Douglas Myers-Turnbull
   */
 class AtomTin(cache: ScalaCache, source: String => TraversableOnce[PdbAtom] = pdbId => AtomTin.download(pdbId, warn = true))

@@ -21,8 +21,9 @@ import org.slf4j.LoggerFactory
 
 /**
   * Transforms a String into a PdbAtom.
+  * Follows the [[http://www.wwpdb.org/documentation/file-format-content/format33/v3.3.html PDB 3.3 specification]].
   *
-  * @param warn: Logs warnings through SLF4J for problems listed in the PDB, namely OBSLETE and CAVEAT records
+  * @param warn: Log warnings through SLF4J for problems listed in the PDB, namely OBSLETE and CAVEAT records
   * @author Douglas Myers-Turnbull
   */
 class PdbParser(warn: Boolean = true) extends ((String) => PdbAtom) {
@@ -46,8 +47,11 @@ class PdbParser(warn: Boolean = true) extends ((String) => PdbAtom) {
 	}
 
 	override def apply(line: String): PdbAtom = {
-		if (line.length < 80 || line.substring(0, 6) != "ATOM  " && line.substring(0, 6) != "HETATM") {
-			throw new IllegalArgumentException("Invalid PDB ATOM or HETATM line \"" + line + "\"")
+		if (line.length != 80) {
+			throw new IllegalArgumentException(String.format("Invalid PDB ATOM or HETATM line of length %s: \"%s\"", line.length.toString, line))
+		}
+		if (line.substring(0, 6) != "ATOM  " && line.substring(0, 6) != "HETATM") {
+			throw new IllegalArgumentException(String.format("Invalid PDB ATOM or HETATM line does not start with ATOM or HETATM: \"%s\"", line))
 		}
 		val aa = line.substring(18-1, 20).trim
 		val e = line.substring(77-1, 78).trim
@@ -68,7 +72,7 @@ class PdbParser(warn: Boolean = true) extends ((String) => PdbAtom) {
 		} catch {
 			case e: NumberFormatException => throw new IllegalArgumentException(e)
 			case e: Throwable =>
-				e.addSuppressed(new Exception("Failed to parse PDB line \"" + line + "\""))
+				e.addSuppressed(new Exception(String.format("Failed to parse PDB line \"%s\"", line)))
 				throw e
 		}
 	}

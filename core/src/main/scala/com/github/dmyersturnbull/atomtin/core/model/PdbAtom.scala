@@ -17,6 +17,7 @@
 package com.github.dmyersturnbull.atomtin.core.model
 
 /**
+  * Most of the data from a PDB ATOM record. Note that this ignores some ATOM fields, such as temperature.
   * @author Douglas Myers-Turnbull
   */
 case class PdbAtom(id: Int,

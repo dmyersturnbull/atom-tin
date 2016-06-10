@@ -18,7 +18,7 @@ package com.github.dmyersturnbull.atomtin.core.model
 
 /**
   * R&#94;3 as Floats, a point an atom resides in.
-  * FLoats are used because the PDB format's fixed-width nature limits the precision.
+  * Floats are used because the PDB format's fixed-width nature limits the precision.
   * @author Douglas Myers-Turnbull
   */
 case class PdbCoordinates(x: BigDecimal, y: BigDecimal, z: BigDecimal) {

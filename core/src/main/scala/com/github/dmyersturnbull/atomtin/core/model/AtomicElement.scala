@@ -24,6 +24,8 @@ import scala.collection.mutable
   */
 object AtomicElement {
 
+	var allTypes = Seq[Type]()
+
 	private val names = new mutable.HashMap[String, Type]()
 	private val symbols = new mutable.HashMap[String, Type]()
 	private val atomicNumbers = new mutable.HashMap[Short, Type]()
@@ -61,6 +63,7 @@ object AtomicElement {
 		names.put(name, e)
 		symbols.put(symbol, e)
 		atomicNumbers.put(number, e)
+		allTypes :+= e
 	}
 
 }
