@@ -39,6 +39,7 @@ class PdbParser(warn: Boolean = true) extends ((String) => PdbAtom) {
 					case "OBSLTE" => logger.warn("Entry identifying itself as {} is obsolete", pdbId.getOrElse("<unknown>"))
 					// TODO ambiguous ref compile error with logger.warn(String, String, String)
 					case "CAVEAT" => logger.warn(String.format("Entry identifying itself as %s has caveat: \"%s\"", pdbId.getOrElse("<unknown>"), line.substring(19, 79).trim))
+					case _ =>
 				}
 				line // use map rather than foreach so we can chain to parser with Iterator/TraversableOnce
 			}
@@ -46,7 +47,7 @@ class PdbParser(warn: Boolean = true) extends ((String) => PdbAtom) {
 		(if (warn) warner(lines) else lines) filter (s => s.startsWith("ATOM") || s.startsWith("HETATM")) map this
 	}
 
-	override def apply(line: String): PdbAtom = {
+	override def apply(line: String): PdbAtom = try {
 		if (line.length != 80) {
 			throw new IllegalArgumentException(String.format("Invalid PDB ATOM or HETATM line of length %s: \"%s\"", line.length.toString, line))
 		}
@@ -55,7 +56,6 @@ class PdbParser(warn: Boolean = true) extends ((String) => PdbAtom) {
 		}
 		val aa = line.substring(18-1, 20).trim
 		val e = line.substring(77-1, 78).trim
-		try {
 			PdbAtom(
 				id = line.substring(7-1, 11).trim.toInt,
 				residueName = AminoAcid byThreeLetter aa toRight aa,
@@ -63,18 +63,15 @@ class PdbParser(warn: Boolean = true) extends ((String) => PdbAtom) {
 				residueId = PdbResidueId(line.substring(23-1, 26).trim.toInt, line.charAt(27-1)),
 				coordinates = PdbCoordinates(
 					BigDecimal.exact(line.substring(31-1, 38).trim),
-					BigDecimal.exact(line.trim.substring(39-1, 46)),
-					BigDecimal.exact(line.trim.substring(47-1, 54))
+					BigDecimal.exact(line.trim.substring(39-1, 46).trim),
+					BigDecimal.exact(line.trim.substring(47-1, 54).trim)
 				),
 				element = AtomicElement bySymbol e toRight e,
 				charge = Option(line.substring(79-1, 80).trim) filter (_.nonEmpty)
 			)
 		} catch {
-			case e: NumberFormatException => throw new IllegalArgumentException(e)
-			case e: Throwable =>
-				e.addSuppressed(new Exception(String.format("Failed to parse PDB line \"%s\"", line)))
-				throw e
+			case e: Exception =>
+				throw new ParsingFailedException(String.format("Failed to parse PDB line \"%s\"", line), e)
 		}
-	}
 
 }

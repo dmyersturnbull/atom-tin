@@ -43,7 +43,7 @@ class PickledAtomTin(storeDir: File = new File(System.getProperty("user.home"), 
 	new Cache() {
 
 		import scala.pickling.json._
-		val filenameExtension = ".pdb-atoms.gson.gz"
+		val filenameExtension = ".pdb-atoms.json.gz"
 
 		def pathOf(pdbId: String) = new File(storeDir, pdbId + filenameExtension)
 
@@ -59,27 +59,30 @@ class PickledAtomTin(storeDir: File = new File(System.getProperty("user.home"), 
 							withClose (() => is.close()))
 							.mkString.unpickle[Seq[PdbAtom]]
 				})
-				//					case true => Some {
-				//						val bis = new BufferedInputStream(new FileInputStream(filename))
-				//						Iterator.continually(bis.read).takeWhile(-1 != _).map(_.toByte).toSeq.unpickle[Traversable[PdbAtom]]
-				//					}
 			}
 			q.asInstanceOf[Option[V]]
 		}
 
 		override def removeAll(): Future[Unit] = Future.successful {
 			(storeDir.listFiles
-			filter (_.getName.endsWith(filenameExtension)) // TODO safe regex pattern
+			filter (_.getName.endsWith(filenameExtension))
 			foreach (_.delete()))
 		}
 
-		override def put[V](id: String, value: V, ttl: Option[Duration]) = {
+		override def put[V](id: String, value: V, ttl: Option[Duration]) = try {
 			Future.successful {
 				val filename = pathOf(id)
 				val pw = new PrintWriter(new BufferedOutputStream(new GZIPOutputStream(new FileOutputStream(filename))))
-				pw.print(value.asInstanceOf[TraversableOnce[PdbAtom]].toSeq.pickle.value)
-				pw.flush()
-				pw.close()
+				try {
+					pw.print(value.asInstanceOf[TraversableOnce[PdbAtom]].toSeq.pickle.value)
+					pw.flush()
+				} catch {
+					case e: RuntimeException =>
+						if (filename.exists()) filename.delete()
+						throw e
+				} finally {
+					pw.close()
+				}
 			}
 		}
 
